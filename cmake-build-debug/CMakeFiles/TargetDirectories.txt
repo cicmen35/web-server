@@ -1,0 +1,3 @@
+/Users/simonnemcic/Desktop/Projects/c++/web-server/cmake-build-debug/CMakeFiles/web_server.dir
+/Users/simonnemcic/Desktop/Projects/c++/web-server/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/simonnemcic/Desktop/Projects/c++/web-server/cmake-build-debug/CMakeFiles/rebuild_cache.dir
