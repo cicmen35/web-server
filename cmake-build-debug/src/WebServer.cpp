@@ -1,14 +1,20 @@
 #include "../include/WebServer.h"
+#include "../include/ClientHandler.h"
 #include <iostream>
 #include <unistd.h>
-#include <cstring>
+#include <csignal>
 #include <sys/socket.h>
 
-WebServer::WebServer(int port, int backlog) : port(port), backlog(backlog), server_fd(-1) {
-    memset(&address, 0, sizeof(address));
-}
+WebServer::WebServer(int port, int backlog)
+        : port(port), backlog(backlog), server_fd(-1), running(false) {}
 
 WebServer::~WebServer() {
+    stop();
+    for (auto& thread : threads) {
+        if (thread.joinable()) {
+            thread.join();
+        }
+    }
     if (server_fd >= 0) {
         close(server_fd);
         std::cout << "Server socket closed." << std::endl;
@@ -21,7 +27,6 @@ void WebServer::init() {
         perror("Socket creation failed");
         exit(EXIT_FAILURE);
     }
-    std::cout << "Socket created successfully." << std::endl;
 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
@@ -32,48 +37,47 @@ void WebServer::init() {
         close(server_fd);
         exit(EXIT_FAILURE);
     }
-    std::cout << "Socket bound to port " << port << std::endl;
 
     if (listen(server_fd, backlog) < 0) {
         perror("Listen failed");
         close(server_fd);
         exit(EXIT_FAILURE);
     }
-    std::cout << "Server is listening on port " << port << std::endl;
+
+    std::cout << "Server initialized and listening on port " << port << std::endl;
 }
 
-void WebServer::handleRequest(int clientSocket) {
-    char buffer[1024] = {0};
-    read(clientSocket, buffer, sizeof(buffer));
+void WebServer::acceptClients() {
+    while (running) {
+        int clientSocket;
+        socklen_t addrlen = sizeof(address);
+        clientSocket = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+        if (clientSocket < 0) {
+            if (running) {
+                perror("Accept failed");
+            }
+            continue;
+        }
 
-    std::string request(buffer);
-    for (auto& middleware : middlewares) {
-        middleware(request);
+        // Launch a new thread to handle the client
+        threads.emplace_back([clientSocket]() {
+            ClientHandler handler(clientSocket);
+            handler.processRequest();
+        });
     }
-
-    const char* response =
-            "HTTP/1.1 200 OK\r\n"
-            "Content-Type: text/plain\r\n"
-            "Content-Length: 13\r\n"
-            "\r\n"
-            "Hello, World!";
-    send(clientSocket, response, strlen(response), 0);
-
-    close(clientSocket);
 }
 
 void WebServer::run() {
-    while (true) {
-        socklen_t addrlen = sizeof(address);
-        int clientSocket = accept(server_fd, (struct sockaddr*)&address, &addrlen);
-        if (clientSocket < 0) {
-            perror("Accept failed");
-            continue;
-        }
-        handleRequest(clientSocket);
-    }
+    running = true;
+    std::cout << "Server running. Waiting for connections..." << std::endl;
+    acceptClients();
 }
 
-void WebServer::addMiddleware(std::function<void(std::string&)> middleware) {
-    middlewares.push_back(middleware);
+void WebServer::stop() {
+    running = false;
+    if (server_fd >= 0) {
+        close(server_fd);
+        server_fd = -1;
+    }
+    std::cout << "Server stopped." << std::endl;
 }

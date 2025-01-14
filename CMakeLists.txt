@@ -7,4 +7,6 @@ add_executable(web_server cmake-build-debug/src/main.cpp
         cmake-build-debug/src/WebServer.cpp
         cmake-build-debug/include/WebServer.h
         cmake-build-debug/src/Middleware.cpp
-        cmake-build-debug/include/Middleware.h)
+        cmake-build-debug/include/Middleware.h
+        cmake-build-debug/include/ClientHandler.h
+        cmake-build-debug/include/ClientHandler.cpp)

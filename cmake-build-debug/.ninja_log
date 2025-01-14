@@ -1,6 +1,6 @@
 # ninja log v5
 8	665	1736853326284370015	CMakeFiles/web_server.dir/Servers/WebServer.cpp.o	107b65a5afa25d46
 8	199	1736853325818265961	CMakeFiles/web_server.dir/Sockets/BasicSocket.cpp.o	6636d2a9b6a1206
-2	92	1736855405635239283	build.ninja	174d7dd975f896cf
+2	92	1736856269085641449	build.ninja	174d7dd975f896cf
 352	506	1736853364135453151	web_server	44003f2a3f6a7e5a
 4	351	1736853363977582685	CMakeFiles/web_server.dir/Servers/main.cpp.o	af3a77cdd9f08787
