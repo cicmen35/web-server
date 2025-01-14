@@ -1,4 +1,4 @@
-#include "WebServer.h"
+#include "../include/WebServer.h"
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
@@ -27,7 +27,7 @@ void WebServer::init() {
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
 
-    if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
+    if (bind(server_fd, (struct sockaddr*)&address, sizeof(address)) < 0) {
         perror("Bind failed");
         close(server_fd);
         exit(EXIT_FAILURE);
@@ -42,33 +42,38 @@ void WebServer::init() {
     std::cout << "Server is listening on port " << port << std::endl;
 }
 
-void WebServer::run() {
-    int new_socket;
-    socklen_t addrlen = sizeof(address);
+void WebServer::handleRequest(int clientSocket) {
     char buffer[1024] = {0};
+    read(clientSocket, buffer, sizeof(buffer));
 
-    std::cout << "Waiting for a connection..." << std::endl;
-
-    new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
-    if (new_socket < 0) {
-        perror("Accept failed");
-        close(server_fd);
-        exit(EXIT_FAILURE);
+    std::string request(buffer);
+    for (auto& middleware : middlewares) {
+        middleware(request);
     }
-    std::cout << "Connection accepted." << std::endl;
 
-    read(new_socket, buffer, sizeof(buffer));
-    std::cout << "Request received:\n" << buffer << std::endl;
-
-    const char *response =
+    const char* response =
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/plain\r\n"
             "Content-Length: 13\r\n"
             "\r\n"
             "Hello, World!";
-    send(new_socket, response, strlen(response), 0);
-    std::cout << "Response sent." << std::endl;
+    send(clientSocket, response, strlen(response), 0);
 
-    close(new_socket);
-    std::cout << "Connection closed." << std::endl;
+    close(clientSocket);
+}
+
+void WebServer::run() {
+    while (true) {
+        socklen_t addrlen = sizeof(address);
+        int clientSocket = accept(server_fd, (struct sockaddr*)&address, &addrlen);
+        if (clientSocket < 0) {
+            perror("Accept failed");
+            continue;
+        }
+        handleRequest(clientSocket);
+    }
+}
+
+void WebServer::addMiddleware(std::function<void(std::string&)> middleware) {
+    middlewares.push_back(middleware);
 }

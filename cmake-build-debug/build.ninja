@@ -61,6 +61,12 @@ build CMakeFiles/web_server.dir/src/WebServer.cpp.o: CXX_COMPILER__web_server_un
   OBJECT_DIR = CMakeFiles/web_server.dir
   OBJECT_FILE_DIR = CMakeFiles/web_server.dir/src
 
+build CMakeFiles/web_server.dir/src/Middleware.cpp.o: CXX_COMPILER__web_server_unscanned_Debug /Users/simonnemcic/Desktop/Projects/c++/web-server/cmake-build-debug/src/Middleware.cpp || cmake_object_order_depends_target_web_server
+  DEP_FILE = CMakeFiles/web_server.dir/src/Middleware.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk -fcolor-diagnostics
+  OBJECT_DIR = CMakeFiles/web_server.dir
+  OBJECT_FILE_DIR = CMakeFiles/web_server.dir/src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target web_server
@@ -69,7 +75,7 @@ build CMakeFiles/web_server.dir/src/WebServer.cpp.o: CXX_COMPILER__web_server_un
 #############################################
 # Link the executable web_server
 
-build web_server: CXX_EXECUTABLE_LINKER__web_server_Debug CMakeFiles/web_server.dir/src/main.cpp.o CMakeFiles/web_server.dir/src/WebServer.cpp.o
+build web_server: CXX_EXECUTABLE_LINKER__web_server_Debug CMakeFiles/web_server.dir/src/main.cpp.o CMakeFiles/web_server.dir/src/WebServer.cpp.o CMakeFiles/web_server.dir/src/Middleware.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk
   OBJECT_DIR = CMakeFiles/web_server.dir
   POST_BUILD = :

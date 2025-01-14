@@ -2,6 +2,9 @@
 #define WEB_SERVER_WEBSERVER_H
 
 #include <netinet/in.h>
+#include <string>
+#include <functional>
+#include <vector>
 
 class WebServer {
 private:
@@ -9,12 +12,15 @@ private:
     struct sockaddr_in address;   // Server address structure
     int port;                     // Port number
     int backlog;                  // Maximum pending connections
+    std::vector<std::function<void(std::string&)>> middlewares; // Middleware functions
+    void handleRequest(int clientSocket);
 
 public:
     WebServer(int port, int backlog = 3);   // Constructor
     ~WebServer();                           // Destructor
     void init();                            // Initialize the server (create, bind, and listen)
     void run();                             // Run the server to accept and handle client connections
+    void addMiddleware(std::function<void(std::string&)> middleware);
 };
 
 #endif //WEB_SERVER_WEBSERVER_H
